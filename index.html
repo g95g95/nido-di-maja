@@ -208,6 +208,9 @@ section.tint .builder{background:var(--milk)}
 .chips input:focus-visible + span{outline:2px solid var(--gold);outline-offset:2px}
 .preview{font-size:.95rem;color:var(--ink-soft);background:var(--linen);border-radius:12px;padding:14px 16px;min-height:3em}
 
+/* review */
+.review-in{display:grid;gap:24px;align-items:center}
+@media (min-width:760px){.review-in{grid-template-columns:1fr auto}}
 /* footer */
 footer{padding-block:40px;border-top:1px solid var(--rule);font-size:.88rem;color:var(--ink-soft)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-between}
@@ -418,6 +421,16 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
       </form>
     </div>
   </section>
+  <section class="band tint review" id="recensioni" hidden>
+    <div class="wrap review-in">
+      <div class="sec-head" style="margin-bottom:0">
+        <span class="eyebrow">Recensioni</span>
+        <h2>Vi siete trovati bene con me?</h2>
+        <p>Una vostra recensione su Google aiuta altre famiglie della zona a trovarmi. Bastano due minuti.</p>
+      </div>
+      <a class="btn btn-main" id="review-link" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>Lascia una recensione su Google</a>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -468,6 +481,13 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
     } catch(e){ sel(); }
     function sel(){ var r=document.createRange(); r.selectNodeContents(document.getElementById("numero")); var s=getSelection(); s.removeAllRanges(); s.addRange(r); }
   });
+  // Recensioni Google: incolla qui il link "Chiedi recensioni" della scheda Google Business Profile.
+  // Finché resta vuoto, la sezione Recensioni non compare.
+  var GOOGLE_REVIEW_URL = "";
+  if (GOOGLE_REVIEW_URL) {
+    document.getElementById("review-link").href = GOOGLE_REVIEW_URL;
+    document.getElementById("recensioni").hidden = false;
+  }
   // galleria nell'arco: scorre da sola ogni 5 secondi, si ferma se la tocchi
   var track=document.getElementById("track"), dots=document.getElementById("dots");
   if (track){
