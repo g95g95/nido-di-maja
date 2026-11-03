@@ -161,7 +161,15 @@ section.tint{background:var(--linen)}
 .about{display:grid;gap:clamp(28px,5vw,56px);align-items:center}
 @media (min-width:860px){.about{grid-template-columns:.85fr 1.15fr}}
 .photo{aspect-ratio:4/5;max-width:100%;border-radius:200px 200px 18px 18px;overflow:hidden;background:var(--linen);box-shadow:0 0 0 1px var(--gold),0 0 0 8px var(--milk),0 0 0 9px var(--rule)}
-.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery{display:grid;gap:18px;justify-items:center;min-width:0}
+.gallery .photo{width:100%}
+.track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.track::-webkit-scrollbar{display:none}
+.track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;scroll-snap-align:center}
+.dots{display:flex;gap:10px}
+.dots button{width:10px;height:10px;padding:0;border-radius:50%;border:1.5px solid var(--gold);background:transparent;cursor:pointer;transition:background .2s, transform .2s}
+.dots button[aria-current="true"]{background:var(--gold);transform:scale(1.15)}
+@media (prefers-reduced-motion:no-preference){.track{scroll-behavior:smooth}}
 .hello{display:flex;align-items:center;gap:16px}
 .hello img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold);flex:none}
 .about-text{display:grid;gap:18px;min-width:0}
@@ -327,7 +335,15 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
 
   <section class="band" id="chi-sono">
     <div class="wrap about">
-      <div class="photo"><img src="assets/marika-ospedale.jpg" width="880" height="1100" alt="Marika in reparto con un neonato in braccio" loading="lazy"></div>
+      <div class="gallery" role="region" aria-roledescription="galleria" aria-label="Foto di Marika al lavoro">
+        <div class="photo">
+          <div class="track" id="track" tabindex="0">
+            <img src="assets/marika-ospedale.jpg" width="880" height="1100" alt="Marika in reparto con un neonato in braccio" loading="lazy">
+            <img src="assets/marika-divisa.jpg" width="880" height="1100" alt="Marika in divisa durante il turno in ospedale" loading="lazy">
+          </div>
+        </div>
+        <div class="dots" id="dots"></div>
+      </div>
       <div class="about-text">
         <span class="eyebrow">Chi sono</span>
         <h2>Ciao, sono Marika</h2>
@@ -452,6 +468,25 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
     } catch(e){ sel(); }
     function sel(){ var r=document.createRange(); r.selectNodeContents(document.getElementById("numero")); var s=getSelection(); s.removeAllRanges(); s.addRange(r); }
   });
+  // galleria nell'arco: scorre da sola ogni 5 secondi, si ferma se la tocchi
+  var track=document.getElementById("track"), dots=document.getElementById("dots");
+  if (track){
+    var imgs=track.querySelectorAll("img"), cur=0, timer=null, still=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    imgs.forEach(function(_,i){
+      var b=document.createElement("button"); b.type="button"; b.setAttribute("aria-label","Foto "+(i+1)+" di "+imgs.length);
+      b.addEventListener("click",function(){go(i);stop();}); dots.appendChild(b);
+    });
+    function mark(){ dots.querySelectorAll("button").forEach(function(b,i){b.setAttribute("aria-current", i===cur?"true":"false")}); }
+    function go(i){ cur=(i+imgs.length)%imgs.length; track.scrollTo({left:cur*track.clientWidth}); mark(); }
+    track.addEventListener("scroll",function(){ var i=Math.round(track.scrollLeft/track.clientWidth); if(i!==cur){cur=i;mark();} },{passive:true});
+    function start(){ if(still||imgs.length<2||timer) return; timer=setInterval(function(){go(cur+1)},5000); }
+    function stop(){ clearInterval(timer); timer=null; }
+    ["pointerdown","touchstart","focusin"].forEach(function(e){track.addEventListener(e,stop,{passive:true})});
+    track.addEventListener("mouseenter",stop); track.addEventListener("mouseleave",start);
+    document.addEventListener("visibilitychange",function(){ document.hidden?stop():start(); });
+    track.addEventListener("keydown",function(e){ if(e.key==="ArrowRight"){go(cur+1);stop();} if(e.key==="ArrowLeft"){go(cur-1);stop();} });
+    mark(); start();
+  }
 })();
 </script>
 
